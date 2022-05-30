@@ -4,52 +4,50 @@ const taskModel = require('../models/task')
 const userModel = require("../models/user")
 const router = new express.Router();
 
-//נתיב למציאת משימה
-
-router.get("/api/tasks",async(req,res)=>{
-    try{
-        const tasks =await taskModel.find({})
-        console.log(tasks);
-        res.send(tasks);
-    }
-    catch(error){
-        res.send(error)
-    }
-});
+//נתיב למציאת כל המשימות
+router.get("/api/tasks", async (req, res) => {
+    const allTasks = await taskModel.find({});
+    console.log(allTasks)
+    res.send(allTasks);
+    
+  });
 //נתיב ליצירת משימה
-router.post("/api/tasks",async(req,res)=>{
-    try{
-        console.log(req.body);
-        const tasks = new taskModel(req.body);
-        await tasks.save()
-
-        res.send(tasks)
-        try{
-            const userOfTask=req.body.users;
-            userOfTask.map(el => {
-               await  userModel.findAndUpdate({id:el},{tasks:[...tasks,req.body.id]})
-            });
-
-        }
-       catch{
-        res.send("not added")
-       }
+  router.post("/api/task", async (req, res) => {
+    try {
+      console.log(req.body);
+      const newTask = new taskModel(req.body);
+      await newTask.save();
+      console.log(newTask);
+     /* try{
+      const userOfTask = req.body.users;
+      console.log(userOfTask);
+      userOfTask.map(async (el) => {
+      console.log(el+"ken")
+     await userRouter.findOneAndUpdate({id:el},{tasks:[...tasks,req.body.id]})
+      console.log("added")
+     });
     }
+    catch{
+      res.send("not added")
+    }*/
 
-    catch(error){
-        console.log(error)
+      }
+
+     catch (error) {
+      res.send(error);
     }
-});
-//נתיב לעדכון לפי id
-router.post("api/tasks/:id",async (req,res)=>{
+  
+  });
+//נתיב לעידכון פרטי משימה
+  router.post("/api/task/:id",async (req,res)=>{
     try{
         console.log(req.params)
         const { id } = req.params
         console.log(req.body)
         
-        await taskModel.findOneAndUpdate({ id },req.body);
+        await taskModel.findOneAndUpdate( id ,req.body);
        
-        res.send()
+        res.send("succses")
     }
     catch(error){
         res.send(error)
@@ -58,43 +56,36 @@ router.post("api/tasks/:id",async (req,res)=>{
 //נתיב למחיקת משימה
 router.post("/api/taskDelete/:id",async (req,res)=>{
     try{
-        console.log(req.params)
-        const { id } = req.params
-        
-        
-        await taskModel.findOneAndDelete({ id });
-       
-        try{
-            const userOfTask = req.body.users
-            userOfTask.map(async(el)=>{
-               await userModel.findAndUpdate({id:el},{tasks:[tasks.filter((el)=>{return el!={ id }})]})   
-            })
-           
-        }
-
-        catch{
-            res.send("not soccsesfully")
-        }
-    }
-    catch(error){
-        res.send(error)
-    }
-})
-//  להציג משתמשים במשימה
-router.get("/api/tasks/:id/",async(req,res)=>{
-    const tasks =await taskModel.find({id:req.params.id})
-    console.log(tasks);
-    res.send(tasks.users);
-})
-
-
-router.post("api/tasks/:idTask/:idUser",async(req,res)=>{
-    const user = userModel.find({id:req.params.idUser})
-    user.tasks.forEach((el) => {
-       el==idTask? res.send(`req.body.tasks${updated}`) : {tasks:[...tasks,req.params.idUser]} 
+      console.log(req.params)
+      const { id } = req.params
+    const task = await taskModel.find({id})
+    console.log(task)
+    const usersOfTask = task[0].users
+    console.log(usersOfTask);
+    usersOfTask.map(async(el)=>{ 
+      const user = await userModel.find({id:el})
+      const tasksOfUser = user[0].tasks
+      console.log(tasksOfUser);
+      const newTasksOfUser = tasksOfUser.filter((task)=>{
+        return task!=id
+      })
+      console.log(newTasksOfUser);
+     await userModel.findOneAndUpdate({id:el},{tasks:newTasksOfUser})
     })
-});
-   
+    await taskModel.findOneAndDelete({ id });
+    }     
+    catch{
+      res.send("not")
+    }
+})
+//נתיב למציאת משימה והצגת המשתמשים של המשימה 
+router.get("/api/findTask/:id", async(req,res)=>{
+  const findTask = await taskModel.find({id:req.params.id})
+  console.log(findTask);
+  console.log(findTask[0].id)
+  res.send(findTask[0].users)
+
+}) 
 
 
 
