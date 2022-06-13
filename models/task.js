@@ -10,7 +10,7 @@ const taskSchema = new mongoose.Schema({
         type:Boolean,
         default:false
     },
-    id:{
+    idTask:{
         type:Number,
         required:true
     },

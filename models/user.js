@@ -7,6 +7,10 @@ const userSchema = mongoose.Schema({
         required:true,
         trim:true
     },
+    idUser: {
+        type:Number
+    },
+    
     email:{
         unique:true,
         type:String,

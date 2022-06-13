@@ -5,6 +5,8 @@ const userModel = require("../models/user")
 const router = new express.Router();
 
 //נתיב למציאת כל המשימות
+
+
 router.get("/api/tasks", async (req, res) => {
     const allTasks = await taskModel.find({});
     console.log(allTasks)
@@ -18,18 +20,21 @@ router.get("/api/tasks", async (req, res) => {
       const newTask = new taskModel(req.body);
       await newTask.save();
       console.log(newTask);
-     /* try{
+     
       const userOfTask = req.body.users;
       console.log(userOfTask);
       userOfTask.map(async (el) => {
-      console.log(el+"ken")
-     await userRouter.findOneAndUpdate({id:el},{tasks:[...tasks,req.body.id]})
-      console.log("added")
+      
+     const user=await userModel.findOne({idUser:el})
+      console.log(user)
+      const tasksUser = user.tasks
+      console.log(tasksUser);
+      await user.updateOne({tasks:tasksUser.push(req.body.idTask)})
+      console.log(tasksUser);
+      await userModel.findOneAndUpdate({idUser:el},{tasks:tasksUser})
      });
-    }
-    catch{
-      res.send("not added")
-    }*/
+    
+    res.send("ok")
 
       }
 
@@ -39,13 +44,13 @@ router.get("/api/tasks", async (req, res) => {
   
   });
 //נתיב לעידכון פרטי משימה
-  router.post("/api/task/:id",async (req,res)=>{
+  router.post("/api/task/:idTask",async (req,res)=>{
     try{
         console.log(req.params)
-        const { id } = req.params
+        const { idTask } = req.params
         console.log(req.body)
         
-        await taskModel.findOneAndUpdate( id ,req.body);
+        await taskModel.findOneAndUpdate({ idTask },req.body);
        
         res.send("succses")
     }
@@ -54,39 +59,61 @@ router.get("/api/tasks", async (req, res) => {
     }
 })
 //נתיב למחיקת משימה
-router.post("/api/taskDelete/:id",async (req,res)=>{
+router.post("/api/taskDelete/:idTask",async (req,res)=>{
     try{
       console.log(req.params)
-      const { id } = req.params
-    const task = await taskModel.find({id})
+      const { idTask } = req.params
+      const task = await taskModel.find({idTask})
     console.log(task)
     const usersOfTask = task[0].users
     console.log(usersOfTask);
     usersOfTask.map(async(el)=>{ 
-      const user = await userModel.find({id:el})
+      const user = await userModel.find({idUser:el})
       const tasksOfUser = user[0].tasks
       console.log(tasksOfUser);
       const newTasksOfUser = tasksOfUser.filter((task)=>{
-        return task!=id
+        return task!=idTask
       })
+      
       console.log(newTasksOfUser);
-     await userModel.findOneAndUpdate({id:el},{tasks:newTasksOfUser})
+     await userModel.findOneAndUpdate({idUser:el},{tasks:newTasksOfUser})
+      
+ /* const userOfTask = req.body.users
+  //console.log(userOfTask);
+  userOfTask.map(async(el,i)=>{
+    const user = await userModel.find({idUser:el})
+  
+    await user[0].updateOne({tasks:user[0].tasks.filter((el)=>{return el!= idTask })})   
+    console.log(user);
+    
     })
-    await taskModel.findOneAndDelete({ id });
-    }     
+   await taskModel.findOneAndDelete({ idTask });*/
+   res.send("deleted")
+    })
+  }    
     catch{
       res.send("not")
     }
-})
+
+  })
+
 //נתיב למציאת משימה והצגת המשתמשים של המשימה 
-router.get("/api/findTask/:id", async(req,res)=>{
-  const findTask = await taskModel.find({id:req.params.id})
+router.get("/api/findTask/:idTask", async(req,res)=>{
+  const findTask = await taskModel.find({idTask:req.params.idTask})
   console.log(findTask);
-  console.log(findTask[0].id)
+  console.log(findTask[0].idTask)
   res.send(findTask[0].users)
+})
 
-}) 
+router.post("/api/updateTask/:idUser/:idTask",async(req,res)=>{
+  const {idUser} = req.params
+  const {idTask} = req.params
+  const user = await userModel.find ({idUser})
+  console.log(user);
+  user[0].tasks.includes(idTask)? res.send("Already exists") :
 
-
+   await userModel.findOneAndUpdate({idUser},{tasks:[...user[0].tasks,idTask]})
+   res.send("updated")
+  })
 
 module.exports=router
