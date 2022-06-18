@@ -22,20 +22,17 @@ const userSchema = mongoose.Schema({
             if (!value.match(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/))
               throw "email is error";
           },
-       
     },
         password:{
             type:String,
             required:true,
             trim:true,
             minlength:7,
-         validate(value){
-             let Special = ["!","@","#","$","%","^","₪","*"];
-             let filter = Special.filter(function(cur){
-                 return cur.includes(value)
-             });
-             if(!filter.length>=2) throw"the password must includes 2 special symbols"
-         }  
+            validate(value) {
+                if (!value.match(/^(?=.*[0-9])(?=.*[!@#$%^&*]){2}/))
+                  throw "invalid password";
+              },
+             
         },
         age:{
             type:Number,
