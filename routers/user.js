@@ -17,21 +17,21 @@ router.get("/api/users", async (req, res) => {
   router.post("/api/task", async (req, res) => {
     try {
       console.log(req.body);
-      const newTask = new taskModel(req.body);
-      await newTask.save();
-      console.log(newTask);
+      const newUser = new userModel(req.body);
+      await newUser.save();
+      console.log(newUser);
      
-      const userOfTask = req.body.users;
-      console.log(userOfTask);
-      userOfTask.map(async (el) => {
+      const tasksOfUser = req.body.users;
+      console.log(tasksOfUser);
+      tasksOfUser.map(async (el) => {
       
-     const user=await userModel.findOne({idUser:el})
-      console.log(user)
-      const tasksUser = user.tasks
-      console.log(tasksUser);
-      await user.updateOne({tasks:tasksUser.push(req.body.idTask)})
-      console.log(tasksUser);
-      await userModel.findOneAndUpdate({idUser:el},{tasks:tasksUser})
+     const task=await taskModel.findOne({idUser:el})
+      console.log(task)
+      const usersTask = task.users
+      console.log(usersTask);
+      await task.updateOne({users:usersTask.push(req.body.idUser)})
+      console.log(usersTask);
+      await taskModel.findOneAndUpdate({idTask:el},{users:usersTask})
      });
     
     res.send("ok")
@@ -50,7 +50,7 @@ router.get("/api/users", async (req, res) => {
         const { idUser } = req.params
         console.log(req.body)
         
-        await taskModel.findOneAndUpdate({ idUser },req.body);
+        await userModel.findOneAndUpdate({ idUser },req.body);
        
         res.send("succses")
     }
@@ -63,7 +63,7 @@ router.post("/api/userDelete/:idUser",async (req,res)=>{
     try{
       console.log(req.params)
       const { idUser } = req.params
-      const user = await taskModel.find({idUser})
+      const user = await userModel.find({idUser})
     console.log(user)
     const tasksOfUser = user[0].tasks
     console.log(tasksOfUser);
@@ -76,7 +76,7 @@ router.post("/api/userDelete/:idUser",async (req,res)=>{
       })
       
       console.log(newUsersOfTask);
-     await userModel.findOneAndUpdate({idTask:el},{tasks:newUsersOfTask})
+     await taskModel.findOneAndUpdate({idTask:el},{users:newUsersOfTask})
       
  /* const usersOfTask = req.body.users
   //console.log(usersOfTask);
@@ -104,12 +104,6 @@ router.get("/api/findUser/:idUser", async(req,res)=>{
   console.log(findUser[0].idUser)
   res.send(findUser[0].tasks)
 })
-
-
-
-
-
-
 
 
 module.exports=router

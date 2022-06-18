@@ -15,7 +15,7 @@ const taskSchema = new mongoose.Schema({
         required:true
     },
     users:{
-     type:[],
+     type:[number],
      default:[]
     }
 

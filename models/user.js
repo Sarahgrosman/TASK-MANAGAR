@@ -18,12 +18,11 @@ const userSchema = mongoose.Schema({
         trim:true,
         lowercase:true,
         minlength:7,
-        validate(value){
-            if(!"@".includes(value)) throw "must includes @" 
-        },
-        validate(value){
-            if(!value.split("@")[1].includes(".")) throw "Invalid  email"
-        },
+        validate(value) {
+            if (!value.match(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/))
+              throw "email is error";
+          },
+       
     },
         password:{
             type:String,
